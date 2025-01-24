@@ -13,6 +13,70 @@ Supported use-cases:
 
 * * *
 
+Usage
+-----
+
+The following shows an involved example for pairing the LVM span trick with a Nix-based build.
+
+```yaml
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches:
+      - "latest"
+
+jobs:
+  build:
+    name: Build requiring more space
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Scrounge-up some more space
+        uses: samueldr/more-space-action@latest
+        with:
+          enable-lvm-span: true
+          lvm-span-mountpoint: /nix
+
+      - name: Install Lix
+        uses: samueldr/lix-gha-installer-action@v1
+
+      - name: Override nix-daemon build directory
+        run: |
+          (
+          PS4=" $ "
+          set -eux -o pipefail
+          sudo mkdir -p /nix/tmp
+          sudo chmod ug=rwx,o=rwxt /nix/tmp
+          sudo mkdir -p /etc/systemd/system/nix-daemon.service.d
+          sudo tee /etc/systemd/system/nix-daemon.service.d/override.conf >/dev/null <<EOF
+          [Service]
+          Environment=TMPDIR=/nix/tmp
+          EOF
+          sudo systemctl daemon-reload
+          sudo systemctl restart nix-daemon
+          )
+
+      - run: nix-build
+```
+
+> [!NOTE]
+> Prefer pinning to a released version, rather than following the latest branch.
+>
+> This applies to all actions.
+
+The use of Nix or Lix is not a requirement with this action.
+It is mainly useful as a less-than-simple example.
+
+Be mindful about the access rights of the mount point, which may not be correct for other use-cases.
+By default, it will be owned, by the default, by the `root:root` user/group pair.
+If you intend to "just" run commands as the runner user in the mounted span, chowning to the runner user will be necessary.
+
+
+* * *
+
 Configuring the action
 ----------------------
 
