@@ -1,0 +1,43 @@
+# Large stuff
+
+*firefox*
+*google-chrome*
+*microsoft-edge*
+mysql*
+postgresql*
+powershell
+*botocore*
+
+# Dev stuff
+llvm-*
+libllvm*
+
+# Not needed
+snapd
+*containerd*
+mecab-*
+# FIXME: figure out which gcc-* to keep
+#gcc-12*
+#gcc-13*
+*gcc-*-dev
+
+# Java stuff
+temurin-*
+*openjdk*
+*-jre
+*-jdk
+
+# Other stuff
+php*
+mono-*
+dotnet-*
+golang-*
+
+# Cloudy stuff
+google-*
+azure-*
+kubectl
+podman
+
+# NOTES
+# Keeping docker for actions relying on docker

@@ -1,0 +1,217 @@
+name: More Space
+description: "Aggressively makes space in a GitHub runner"
+branding:
+  color: red
+  icon: trash-2
+
+inputs:
+
+  #
+  # Removing stuff
+  #
+
+  additional-apt-patterns:
+    description: |
+      Additional patterns to autopurge with apt.
+
+      > [!WARNING]
+      > This single string will be split according to bash string splitting semantics.
+    required: false
+    default: ""
+
+  enable-remove-default-apt-patterns:
+    description: |
+      Enable the built-in list of patterns to autopurge.
+
+      This effectively disables autopurging if disabled, when no additional patterns are provided.
+    required: false
+    default: true
+
+  additional-space-hogs:
+    description: |
+      Additional paths to remove.
+
+      > [!WARNING]
+      > This single string will be split according to bash string splitting semantics.
+    required: false
+    default: ""
+
+  enable-remove-default-space-hogs:
+    description: |
+      Enable the built-in list of space hogs to remove.
+    required: false
+    default: true
+
+  enable-remove-non-package-usr:
+    description: |
+      Enable removing some content from `/usr/` that is not managed by the package manager.
+
+      (This will not remove `/usr/local` content.)
+    required: false
+    default: true
+
+  enable-remove-default-home-folder-hogs:
+    description: |
+      Enable the built-in list of home folder hogs to remove.
+    required: false
+    default: true
+
+  enable-remove-home-folder-hogs:
+    description: |
+      Enable removing some large content from the different `/home/` folders.
+    required: false
+    default: true
+
+  enable-remove-usr-local:
+    description: |
+      Enable removing `/usr/local` entirely. It is not managed by the package manager.
+    required: false
+    default: true
+
+  enable-docker-prune-all:
+    description: |
+      Enable pruning all docker images from system.
+
+      Some older images shipped with around 2.5GiB of wasted space from docker images.
+    required: false
+    default: true
+
+  #
+  # Disk harmonization
+  #
+
+  enable-second-drive-harmonization:
+    description: |
+      When enabled, if a second drive is attached to the runner (it likely is with GitHub's runners),
+      the attached drive will be configured to work similarly on all systems:
+
+        - The secondary disk (if needed) will be formatted and mounted to `/mnt`
+        - Swap file will be put in the preferred location (see: `swapfile-location`)
+
+      This option, in itself, saves no space, but ensures further steps can run under an expected disk layout.
+    required: false
+    default: true
+
+  enable-swapfile:
+    description: |
+      When harmonizing the drives, the existing swapfile will be removed.
+
+      When this option is enabled, a swapfile is created back in the system.
+      This option can be used to effectively disable the swapfile entirely.
+
+      A swapfile is used by default, just like GitHub's runners do by default.
+    require: false
+    default: true
+
+  swapfile-location:
+    description: |
+      Determine where the swapfile should be created.
+
+      GitHub's runners defaults differ:
+
+        - AArch64: /swapfile
+        - x86_64: /mnt/swapfile
+    required: false
+    default: /swapfile
+
+  swapfile-size:
+    description: |
+      Determine the swapfile size.
+
+      GitHub's runners defaults differ:
+
+        - AArch64: 3GB
+        - x86_64: 4GB
+
+      The value is passed to fallocate.
+    required: false
+    default: 4GiB
+
+  #
+  # Expanding storage for a specific folder
+  #
+
+  enable-lvm-span:
+    description: |
+      When enabled, files will be created at the listed locations, 
+
+      The mountpoint will be left untouched, meaning that chmod or chown is likely to be needed to make use of it in your actions.
+
+      > [!NOTE]
+      > This option makes no sense to enable without `enable-second-drive-harmonization` being enabled.
+
+      > [!WARNING]
+      > If setting-up the lvm span fails, at any point, the action will fail.
+      >
+      > Enabling this option means it is necessary for the span to be created.
+    required: false
+    default: false
+
+  lvm-span-mountpoint:
+    description: |
+      Loction the lvm span will be mounted as
+    required: false
+    default: /misc
+
+  lvm-span-mountpoints:
+    description: |
+      Mountpoints under which a file for the LVM span will be created.
+    required: false
+    default: / /mnt
+
+  lvm-span-default-free-space:
+    description: |
+      This numeric option describes the amount of bytes that will be left free by default on drives with an LVM span.
+
+      The default value leaves 100MiB free on any given disk.
+
+      See also: `lvm-span-free-space`
+    required: false
+    default: 104857600
+
+  lvm-span-free-space:
+    description: |
+      JSON object listing amount of free space to be left on specific mountpoints.
+
+      The default leaves 1GiB free on the rootfs.
+
+      See also: `lvm-span-default-free-space`
+    required: false
+    default: |
+      {
+        "/": "1073741824"
+      }
+
+  #
+  # Misc. configuration
+  #
+
+  verbose:
+    description: |
+      When enabled, this action may be overly verbose.
+    required: false
+    default: false
+
+  dry-run:
+    description: |
+      When enabled, this action will stub out all system altering commands.
+    required: false
+    default: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: more space
+      #
+      # > If the action is written using a composite, then it will not automatically get INPUT_<VARIABLE_NAME>.
+      #  - https://docs.github.com/en/actions/sharing-automations/creating-actions/metadata-syntax-for-github-actions#inputs
+      # 
+      # ¯\_(ツ)_/¯
+      #
+      # Let's use JSON instead.
+      env:
+        INPUTS_JSON: ${{ toJSON(inputs) }}
+      shell: bash
+      run: |
+        # The `more space action` starts here...
+        sudo -E bash ${{ github.action_path }}/get-more-space.sh

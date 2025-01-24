@@ -1,0 +1,10 @@
+/etc/skel # ????
+/home/linuxbrew
+/opt/az
+/opt/google-cloud-sdk
+/opt/hostedtoolcache
+/opt/microsoft
+/opt/pipx
+/usr/lib/heroku
+/usr/src
+/var/lib/mysql

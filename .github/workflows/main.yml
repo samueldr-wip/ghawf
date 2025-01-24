@@ -1,0 +1,78 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - "latest"
+
+jobs:
+  check:
+    name: "{span: ${{ matrix.enable-lvm-span }}, os: ${{ matrix.os }}}"
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - ubuntu-22.04-arm
+          - ubuntu-24.04-arm
+          # No macOS support.
+        enable-lvm-span:
+          - "false"
+          - "true"
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository                                               
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+          
+      - name: Test this action...
+        uses: ./
+        with:
+          enable-lvm-span: ${{ matrix.enable-lvm-span }}
+          lvm-span-mountpoint: /nix
+
+      - name: "`wajig large` for ${{matrix.os}}"
+        shell: bash
+        run: |
+          (
+            _notice_stdin() {
+              set +x
+              printf '::notice title=%s::%s\n' "$1" "$(
+                 sed -e ':a;N;$!ba;s/\n/%0A/g'
+              )"
+              set -x
+            }
+            PS4=" $ "
+            set -x
+            exec 2>&1
+            sudo apt install wajig
+            (
+              wajig large
+            ) | _notice_stdin '`wajig large` for ${{matrix.os}}'
+          )
+
+      - name: "System stats for ${{matrix.os}}(span: ${{ matrix.enable-lvm-span }})"
+        shell: bash
+        run: |
+          printf '::notice title=%s::%s\n' "System stats for ${{matrix.os}}(span: ${{ matrix.enable-lvm-span }})" "$(
+            sed -e ':a;N;$!ba;s/\n/%0A/g' more-space.system-stats.txt
+          )"
+
+      - name: "Space savings on ${{matrix.os}}(span: ${{ matrix.enable-lvm-span }})"
+        shell: bash
+        run: |
+          printf '::notice title=%s::%s\n' "Space savings on ${{matrix.os}}(span: ${{ matrix.enable-lvm-span }})" "$(
+            sed -e ':a;N;$!ba;s/\n/%0A/g' more-space.final-stats.txt
+          )"
+
+      - name: Generate ncdu report
+        shell: bash
+        run: |
+          sudo apt install ncdu
+          sudo ncdu -x / -o ncdu.${{ matrix.os }}.span=${{ matrix.enable-lvm-span }}.json
+
+      - name: Upload ncdu report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ncdu.${{ matrix.os }}.span=${{ matrix.enable-lvm-span }}
+          path: ncdu.${{ matrix.os }}.span=${{ matrix.enable-lvm-span }}.json
