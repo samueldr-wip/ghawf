@@ -1,4 +1,4 @@
-name: More Space
+name: More Space Action
 description: "Aggressively makes space in a GitHub runner"
 branding:
   color: red
