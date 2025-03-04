@@ -1,0 +1,22 @@
+# nix-instantiate --eval --strict --json test.nix > .github/workflows/build.yml
+{
+  name = "Build";
+  on = {
+    pull_request = {};
+    push = {
+      branches = [
+        "**"
+      ];
+    };
+  };
+  jobs = {
+    testing = {
+      runs-on = "ubuntu/latest";
+      steps = [
+        {
+          uses = "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683";
+        }
+      ];
+    };
+  };
+}
