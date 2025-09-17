@@ -5,5 +5,6 @@ runs:
   using: "composite"
   steps:
     - name: "hello"
+      shell: bash
       run: |
         printf 'Hello, world!\n'
