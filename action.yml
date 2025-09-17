@@ -1,0 +1,9 @@
+name: 'hello'
+description: 'hi'
+
+runs:
+  using: "composite"
+  steps:
+    - name: "hello"
+      run: |
+        printf 'Hello, world!\n'
