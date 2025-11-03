@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "latest"
+      - "wip/kvm"
 
 jobs:
   do-it:
