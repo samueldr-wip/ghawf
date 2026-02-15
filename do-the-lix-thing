@@ -183,6 +183,11 @@ set +u
 
 set -u
 
+# See if nix thinks the install is good...
+printf '\n nix doctor:\n'
+(set -x; nix doctor) |& _indent
+printf '\n'
+
 # Then do some additional checks
 printf '\n  builtins.nixVersion:\n';
 (set -x; nix-instantiate --eval --json --strict --expr "(builtins.nixVersion)")
