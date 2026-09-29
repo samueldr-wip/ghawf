@@ -4,7 +4,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        For discussions and questions, please use the [Discussions](https://github.com/Jovian-Experiments/Jovian-NixOS/discussions) area.
+        > [!NOTE]
+        > For discussions and questions, please use the [Discussions](https://github.com/Jovian-Experiments/Jovian-NixOS/discussions) area.
   - type: checkboxes
     attributes:
       label: Contributors guidelines
