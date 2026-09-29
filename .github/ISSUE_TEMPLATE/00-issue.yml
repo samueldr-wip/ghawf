@@ -3,7 +3,6 @@ description: For all issues
 body:
   - type: markdown
     attributes:
-      label: 👋
       value: |
         For discussions and questions, please use the [Discussions](https://github.com/Jovian-Experiments/Jovian-NixOS/discussions) area.
   - type: checkboxes
