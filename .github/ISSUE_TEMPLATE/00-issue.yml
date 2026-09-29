@@ -3,8 +3,9 @@ description: For all issues
 body:
   - type: markdown
     attributes:
-    value: |
-      For discussions and questions, please use the [Discussions](https://github.com/Jovian-Experiments/Jovian-NixOS/discussions) area.
+      label: 👋
+      value: |
+        For discussions and questions, please use the [Discussions](https://github.com/Jovian-Experiments/Jovian-NixOS/discussions) area.
   - type: checkboxes
     attributes:
       label: Contributors guidelines
@@ -16,6 +17,6 @@ body:
   - type: textarea
     id: issue
     attributes:
-      label: ""
+      label: "Description"
     validations:
       required: true
